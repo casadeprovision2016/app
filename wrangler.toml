@@ -2,6 +2,7 @@
 # This file configures the Workers deployment with all required bindings and settings
 
 name = "bible-image-generator"
+account_id = "9e82a730533b74dc38919ec60cb3ed5e"
 main = "src/index.ts"
 compatibility_date = "2025-01-07"
 upload_source_maps = true
@@ -25,17 +26,23 @@ preview_bucket_name = "bible-images-preview"
 binding = "DB"
 database_name = "bible-image-db-dev"
 database_id = "placeholder-will-be-created-on-first-deploy"
+preview_database_id = "f761fe84-e58f-40d7-bfdf-7eaa55e9451b"
 
 # Workers KV namespace for caching
 [[kv_namespaces]]
 binding = "KV_CACHE"
 id = "placeholder-will-be-created-on-first-deploy"
+preview_id = "a0a7dcb43210420eb0ccfd86858536c3"
 
 # Durable Objects for rate limiting
 [durable_objects]
 bindings = [
-  { name = "RATE_LIMITER", class_name = "RateLimiter", script_name = "bible-image-generator" }
+  { name = "RATE_LIMITER", class_name = "RateLimiter" }
 ]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["RateLimiter"]
 
 # Environment variables (development defaults)
 [vars]

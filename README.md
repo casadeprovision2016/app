@@ -33,7 +33,7 @@ npm run dev              # Terminal 1: Worker API
 npm run dev:frontend     # Terminal 2: Frontend
 ```
 
-See [LOCAL_DEVELOPMENT.md](./LOCAL_DEVELOPMENT.md) for complete setup guide and [QUICK_DEV_REFERENCE.md](./QUICK_DEV_REFERENCE.md) for command reference.
+See [LOCAL_DEVELOPMENT.md](./docs/LOCAL_DEVELOPMENT.md) for complete setup guide and [QUICK_DEV_REFERENCE.md](./docs/QUICK_DEV_REFERENCE.md) for command reference.
 
 ### Prerequisites
 

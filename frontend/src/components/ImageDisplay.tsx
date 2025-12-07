@@ -1,8 +1,5 @@
 import React from 'react';
 import { GeneratedImage } from '../context/AppContext';
-import { document } from 'postcss';
-import { document } from 'postcss';
-import { document } from 'postcss';
 
 interface ImageDisplayProps {
   image: GeneratedImage;

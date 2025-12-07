@@ -558,6 +558,65 @@ export default {
       // Setup router
       const router = new Router();
 
+      // GET / - Landing page
+      router.add('GET', /^\/$/, async () => {
+        const html = `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bible Image Generator</title><style>body{font-family:Arial,Helvetica,sans-serif;line-height:1.5;margin:0;padding:32px;background:#f5f5f5;color:#111}main{max-width:720px;margin:0 auto;background:#fff;padding:24px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.08)}h1{margin-top:0;font-size:1.8rem}p{margin:0 0 12px}a{color:#0b6bcb;text-decoration:none;font-weight:600}a:hover{text-decoration:underline}ul{padding-left:20px;margin:12px 0 0}</style></head><body><main><h1>Bible Image Generator API</h1><p>You are connected to the Worker. Key endpoints:</p><ul><li><a href="/api/daily-verse">GET /api/daily-verse</a></li><li><a href="/api/images/{imageId}">GET /api/images/{imageId}</a> (metadata)</li><li><a href="/api/images/{imageId}/data">GET /api/images/{imageId}/data</a> (image bytes)</li></ul><p>Use <code>npm run dev:remote</code> or <code>npm run dev</code> for local preview.</p></main></body></html>`;
+
+        return new Response(html, {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/html; charset=UTF-8',
+          },
+        });
+      });
+
+      // POST /internal/set-daily-verse
+      // Development-only helper to set the daily verse KV key for preview/testing.
+      router.add('POST', /^\/internal\/set-daily-verse$/, async (req, env, ctx, params) => {
+        // Only allow in development to avoid exposing an open admin endpoint in production
+        if ((env.ENVIRONMENT as string) !== 'development') {
+          return createErrorResponse(
+            ErrorCode.INVALID_REQUEST_FORMAT,
+            'Not allowed',
+            requestId,
+            403
+          );
+        }
+
+        let body: { imageId?: string };
+        try {
+          body = await req.json();
+        } catch (err) {
+          return createErrorResponse(
+            ErrorCode.INVALID_REQUEST_FORMAT,
+            'Invalid JSON body',
+            requestId,
+            400
+          );
+        }
+
+        if (!body?.imageId) {
+          return createErrorResponse(
+            ErrorCode.MISSING_REQUIRED_FIELD,
+            'Missing imageId',
+            requestId,
+            400
+          );
+        }
+
+        try {
+          await cacheService.setDailyVerse(body.imageId);
+          return new Response(JSON.stringify({ success: true, imageId: body.imageId }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+        } catch (error: any) {
+          return createErrorResponse(
+            ErrorCode.INTERNAL_SERVER_ERROR,
+            'Failed to set daily verse',
+            requestId,
+            500
+          );
+        }
+      });
+
       // POST /api/generate
       router.add('POST', /^\/api\/generate$/, async (req, env, ctx, params) => {
         const operation = 'generate_image';

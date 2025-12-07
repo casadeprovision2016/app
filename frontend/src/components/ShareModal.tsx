@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
 import { GeneratedImage } from '../context/AppContext';
-import { document } from 'postcss';
-import { document } from 'postcss';
-import { document } from 'postcss';
-import { document } from 'postcss';
-import { document } from 'postcss';
-import { document } from 'postcss';
-import { document } from 'postcss';
-import { document } from 'postcss';
 
 interface ShareModalProps {
   image: GeneratedImage;

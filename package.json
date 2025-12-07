@@ -38,20 +38,21 @@
 		"tail:staging": "wrangler tail --env staging",
 		"tail:production": "wrangler tail --env production",
 		"clean": "rm -rf dist .wrangler node_modules/.vite",
-		"clean:all": "rm -rf dist .wrangler node_modules"
+		"clean:all": "rm -rf dist .wrangler node_modules",
+		"kv:create:preview": "node scripts/create-preview-kv.js"
 	},
 	"devDependencies": {
 		"@types/react": "^18.3.12",
 		"@types/react-dom": "^18.3.1",
 		"@vitejs/plugin-react": "^4.3.4",
-		"@vitest/ui": "^2.1.8",
+		"@vitest/ui": "^4.0.15",
 		"autoprefixer": "^10.4.20",
 		"fast-check": "^3.23.2",
 		"postcss": "^8.4.49",
 		"tailwindcss": "^3.4.17",
 		"typescript": "5.9.3",
 		"vite": "^6.0.5",
-		"vitest": "^2.1.8",
+		"vitest": "^4.0.15",
 		"wrangler": "^4.53.0"
 	},
 	"dependencies": {

@@ -19,10 +19,10 @@ TURNSTILE_ENABLED = "true"
 TURNSTILE_HIGH_FREQUENCY_THRESHOLD = "10"
 
 # Turnstile site key (visible to clients)
-TURNSTILE_SITE_KEY = "your-site-key-here"
+TURNSTILE_SITE_KEY = "0x4AAAAAACFOFXRnLJoCzmQA"
 
 # Turnstile secret key (server-side only)
-TURNSTILE_SECRET_KEY = "your-secret-key-here"
+TURNSTILE_SECRET_KEY = "0x4AAAAAACFOFSugEtfkFL_pdsKkmdzHxGE"
 ```
 
 ### Getting Turnstile Keys

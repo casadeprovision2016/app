@@ -1,59 +1,158 @@
 # Deployment Checklist
 
-Use this checklist to ensure all components are properly configured before deployment.
+Use this comprehensive checklist to ensure all components are properly configured before deployment.
+
+## Quick Reference
+
+- **Deployment Guide**: See [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)
+- **Rollback Procedures**: See [docs/ROLLBACK_PROCEDURES.md](docs/ROLLBACK_PROCEDURES.md)
+- **Environment Setup**: See [docs/ENVIRONMENT_SETUP.md](docs/ENVIRONMENT_SETUP.md)
+- **Secrets Configuration**: See [docs/SECRETS_CONFIGURATION.md](docs/SECRETS_CONFIGURATION.md)
 
 ## Pre-Deployment
 
 ### 1. Cloudflare Resources Created
-- [ ] D1 Database created (`wrangler d1 create bible-image-db`)
-- [ ] R2 Bucket created (`wrangler r2 bucket create bible-images`)
-- [ ] KV Namespace created (`wrangler kv:namespace create KV_CACHE`)
-- [ ] Resource IDs updated in `wrangler.json`
+- [ ] D1 Database created for environment
+  ```bash
+  wrangler d1 create bible-image-db-production
+  ```
+- [ ] R2 Bucket created for environment
+  ```bash
+  wrangler r2 bucket create bible-images-production
+  ```
+- [ ] KV Namespace created for environment
+  ```bash
+  wrangler kv:namespace create KV_CACHE --env production
+  ```
+- [ ] Resource IDs updated in `wrangler.toml`
+- [ ] Durable Objects configured in `wrangler.toml`
 
 ### 2. Database Setup
-- [ ] Migrations applied to local database (`wrangler d1 migrations apply DB --local`)
-- [ ] Migrations applied to production database (`wrangler d1 migrations apply DB --remote`)
-- [ ] Verses seeded in database
+- [ ] Migrations applied to local database
+  ```bash
+  ./scripts/migrate-database.sh apply local
+  ```
+- [ ] Migrations tested locally
+- [ ] Migrations applied to staging (if applicable)
+  ```bash
+  ./scripts/migrate-database.sh apply staging
+  ```
+- [ ] Migrations applied to production database
+  ```bash
+  ./scripts/migrate-database.sh apply production
+  ```
+- [ ] Verses seeded in database (30 verses expected)
+- [ ] Database schema verified
+  ```bash
+  ./scripts/migrate-database.sh verify production
+  ```
 
-### 3. Environment Variables
-- [ ] `wrangler.json` configured with correct values
-- [ ] Secrets configured (if using authentication):
-  - [ ] `JWT_SECRET`
-  - [ ] `ADMIN_API_KEY`
+### 3. Secrets Configuration
+- [ ] JWT_SECRET generated and set
+  ```bash
+  openssl rand -base64 32 | wrangler secret put JWT_SECRET --env production
+  ```
+- [ ] ADMIN_API_KEY generated and set
+  ```bash
+  openssl rand -base64 32 | wrangler secret put ADMIN_API_KEY --env production
+  ```
+- [ ] TURNSTILE_SECRET_KEY set (if using CAPTCHA)
+  ```bash
+  wrangler secret put TURNSTILE_SECRET_KEY --env production
+  ```
+- [ ] Secrets verified
+  ```bash
+  wrangler secret list --env production
+  ```
+- [ ] Secrets stored in password manager
 
-### 4. Frontend Configuration
+### 4. Environment Variables
+- [ ] `wrangler.toml` configured with correct values
+- [ ] ALLOWED_ORIGINS updated with production domains
+- [ ] Rate limits configured appropriately
+- [ ] Retention policies set
+- [ ] Content moderation enabled (for production)
+- [ ] Scheduled workers configured (cron triggers)
+
+### 5. Frontend Configuration
 - [ ] `frontend/.env.local` created for local development
 - [ ] Environment variables configured in Pages dashboard:
-  - [ ] `VITE_API_URL` (production)
-  - [ ] `VITE_API_URL` (preview)
-  - [ ] `VITE_ENVIRONMENT`
+  - [ ] `VITE_API_URL` (production) - Worker URL
+  - [ ] `VITE_API_URL` (preview) - Staging Worker URL
+  - [ ] `VITE_ENVIRONMENT` (production) - "production"
+  - [ ] `VITE_ENVIRONMENT` (preview) - "preview"
+  - [ ] `VITE_TURNSTILE_SITE_KEY` (if using CAPTCHA)
 
-### 5. Build Verification
-- [ ] Worker builds successfully (`npm run check`)
-- [ ] Frontend builds successfully (`npm run build:frontend`)
-- [ ] All tests pass (`npm test`)
+### 6. Build Verification
+- [ ] Worker builds successfully
+  ```bash
+  npm run build
+  ```
+- [ ] Frontend builds successfully
+  ```bash
+  npm run build:frontend
+  ```
+- [ ] All tests pass
+  ```bash
+  npm test
+  ```
+- [ ] Type checking passes
+  ```bash
+  npm run check
+  ```
 - [ ] No TypeScript errors
+- [ ] No linting errors
 
 ## Worker Deployment
 
-### 1. Deploy Worker
-```bash
-npm run deploy
-```
+### 1. Pre-Deployment Backup
+- [ ] Create database backup
+  ```bash
+  ./scripts/migrate-database.sh backup production
+  ```
+- [ ] Backup stored securely
+- [ ] Backup uploaded to R2 (automatic)
 
+### 2. Deploy Worker
+- [ ] Deploy to production
+  ```bash
+  wrangler deploy --env production
+  ```
 - [ ] Deployment successful
 - [ ] Worker URL noted: `_______________________________`
+- [ ] Deployment ID recorded for potential rollback
 
-### 2. Verify Worker
-- [ ] Health check endpoint responds: `GET /api/health`
-- [ ] Daily verse endpoint works: `GET /api/daily-verse`
-- [ ] Rate limiting works (test with multiple requests)
+### 3. Verify Worker Deployment
+- [ ] Daily verse endpoint responds
+  ```bash
+  curl https://your-worker-url.workers.dev/api/daily-verse
+  ```
+- [ ] Image generation works
+  ```bash
+  curl -X POST https://your-worker-url.workers.dev/api/generate \
+    -H "Content-Type: application/json" \
+    -d '{"verseReference": "John 3:16", "stylePreset": "modern"}'
+  ```
+- [ ] Rate limiting enforced (test with multiple rapid requests)
+- [ ] Error handling works (test with invalid input)
+- [ ] CORS headers present
 
-### 3. Configure Scheduled Workers
-- [ ] Cron triggers configured in `wrangler.json`
-- [ ] Daily verse generation scheduled (6 AM UTC)
-- [ ] Cleanup scheduled (weekly)
-- [ ] Metrics aggregation scheduled (daily)
+### 4. Verify Scheduled Workers
+- [ ] Cron triggers configured in `wrangler.toml`
+  - [ ] Daily verse generation (0 6 * * *)
+  - [ ] Metrics aggregation (0 0 * * *)
+  - [ ] Weekly cleanup (0 2 * * 0)
+- [ ] Scheduled workers visible in dashboard
+- [ ] Monitor logs at scheduled times
+  ```bash
+  wrangler tail --env production
+  ```
+
+### 5. Monitor Worker
+- [ ] Check Worker logs for errors
+- [ ] Verify metrics are being recorded
+- [ ] Check CPU time usage
+- [ ] Monitor request count
 
 ## Pages Deployment
 
@@ -130,25 +229,42 @@ npm run deploy:pages
 
 ## Rollback Plan
 
-If issues occur after deployment:
+**See [docs/ROLLBACK_PROCEDURES.md](docs/ROLLBACK_PROCEDURES.md) for detailed procedures.**
 
-### Worker Rollback
-```bash
-# Rollback to previous version in Cloudflare dashboard
-# Workers → bible-image-generator → Deployments → Rollback
-```
+### Quick Rollback Steps
 
-### Pages Rollback
-```bash
-# Rollback in Cloudflare dashboard
-# Pages → bible-image-generator-frontend → Deployments → Rollback
-```
+#### Worker Rollback (30 seconds)
+1. Go to Cloudflare Dashboard → Workers → Deployments
+2. Find previous deployment
+3. Click "Rollback to this deployment"
+4. Verify functionality
 
-### Database Rollback
+#### Pages Rollback (1 minute)
+1. Go to Cloudflare Dashboard → Pages → Deployments
+2. Find previous deployment
+3. Click "Rollback to this deployment"
+4. Verify frontend loads
+
+#### Database Rollback (5-15 minutes)
 ```bash
+# List available backups
+./scripts/migrate-database.sh backup production
+
 # Restore from backup
-wrangler d1 restore DB --from-backup backup-YYYY-MM-DD.sql
+./scripts/migrate-database.sh restore production backups/backup-file.sql
+
+# Verify restoration
+./scripts/migrate-database.sh verify production
 ```
+
+### Rollback Decision Matrix
+
+| Severity | Impact | Action |
+|----------|--------|--------|
+| Critical | >50% users affected | Immediate rollback |
+| High | Core features broken | Rollback recommended |
+| Medium | Minor issues | Hotfix forward |
+| Low | Cosmetic issues | Fix in next release |
 
 ## Maintenance
 
