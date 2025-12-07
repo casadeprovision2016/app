@@ -1,0 +1,6 @@
+# Cloudflare Pages Redirects Configuration
+# This file configures URL redirects and rewrites for the SPA
+
+# SPA fallback - redirect all non-file requests to index.html
+# This enables client-side routing to work properly
+/* /index.html 200

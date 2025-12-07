@@ -1,0 +1,35 @@
+# ============================================================================
+# Local Development Environment Variables
+# ============================================================================
+# Copy this file to .dev.vars for local development with Wrangler
+# These variables are used by `wrangler dev` and override wrangler.toml vars
+# DO NOT commit .dev.vars to version control!
+
+# ============================================================================
+# SECRETS (for local development only)
+# ============================================================================
+# Generate secure values using: openssl rand -base64 32
+
+# JWT secret for token signing (required if authentication is enabled)
+JWT_SECRET=local-dev-jwt-secret-change-me-in-production
+
+# API key for admin endpoints
+ADMIN_API_KEY=local-dev-admin-key-change-me-in-production
+
+# Cloudflare Turnstile secret key (optional, for CAPTCHA testing)
+# Get from: https://dash.cloudflare.com/?to=/:account/turnstile
+# For local testing, you can use the test keys from Cloudflare docs
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+
+# ============================================================================
+# OPTIONAL OVERRIDES
+# ============================================================================
+# Uncomment to override values from wrangler.toml
+
+# ENVIRONMENT=development
+# ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
+# RATE_LIMIT_ANONYMOUS=5
+# RATE_LIMIT_AUTHENTICATED=20
+# IMAGE_RETENTION_DAYS=90
+# BACKUP_RETENTION_DAYS=30
+# ENABLE_CONTENT_MODERATION=false

@@ -1,0 +1,52 @@
+# Cloudflare Pages Headers Configuration
+# This file configures HTTP headers for static assets served by Pages
+# Enables edge caching and security headers
+
+# Default security headers for all routes
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Cache static assets aggressively (immutable content)
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache JavaScript bundles
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache CSS files
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache fonts
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+/*.ttf
+  Cache-Control: public, max-age=31536000, immutable
+
+# Don't cache HTML (always serve fresh)
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Cache images for 1 day
+/*.png
+  Cache-Control: public, max-age=86400
+/*.jpg
+  Cache-Control: public, max-age=86400
+/*.jpeg
+  Cache-Control: public, max-age=86400
+/*.webp
+  Cache-Control: public, max-age=86400
+/*.svg
+  Cache-Control: public, max-age=86400
+/*.ico
+  Cache-Control: public, max-age=86400

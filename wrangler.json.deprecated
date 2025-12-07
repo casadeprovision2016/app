@@ -1,0 +1,5 @@
+{
+	"_comment": "This file has been replaced by wrangler.toml",
+	"_note": "Please use wrangler.toml for all configuration",
+	"_migration": "The configuration has been migrated to wrangler.toml with environment-specific settings"
+}

@@ -1,0 +1,153 @@
+# Cloudflare Workers Configuration for Bible Image Generator
+# This file configures the Workers deployment with all required bindings and settings
+
+name = "bible-image-generator"
+main = "src/index.ts"
+compatibility_date = "2025-01-07"
+upload_source_maps = true
+
+# Enable observability features
+[observability]
+enabled = true
+
+# Workers AI binding for flux-2-dev model
+[ai]
+binding = "AI"
+
+# R2 bucket for image storage
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "bible-images-dev"
+preview_bucket_name = "bible-images-preview"
+
+# D1 database for metadata storage
+[[d1_databases]]
+binding = "DB"
+database_name = "bible-image-db-dev"
+database_id = "placeholder-will-be-created-on-first-deploy"
+
+# Workers KV namespace for caching
+[[kv_namespaces]]
+binding = "KV_CACHE"
+id = "placeholder-will-be-created-on-first-deploy"
+
+# Durable Objects for rate limiting
+[durable_objects]
+bindings = [
+  { name = "RATE_LIMITER", class_name = "RateLimiter", script_name = "bible-image-generator" }
+]
+
+# Environment variables (development defaults)
+[vars]
+ENVIRONMENT = "development"
+ALLOWED_ORIGINS = "http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173"
+RATE_LIMIT_ANONYMOUS = "5"
+RATE_LIMIT_AUTHENTICATED = "20"
+IMAGE_RETENTION_DAYS = "90"
+BACKUP_RETENTION_DAYS = "30"
+ENABLE_CONTENT_MODERATION = "false"
+
+# Scheduled worker triggers
+# Note: Cron syntax is "minute hour day month day-of-week"
+[triggers]
+crons = [
+  "0 6 * * *",   # Daily verse generation at 6 AM UTC
+  "0 0 * * *",   # Metrics aggregation at midnight UTC
+  "0 2 * * 0"    # Weekly cleanup on Sunday at 2 AM UTC
+]
+
+# Secrets configuration (set via: wrangler secret put <KEY>)
+# These are placeholders - actual values must be set via CLI
+# - JWT_SECRET: Secret key for JWT token signing
+# - ADMIN_API_KEY: API key for admin endpoints
+# - TURNSTILE_SECRET_KEY: Cloudflare Turnstile secret (optional)
+
+# ============================================================================
+# STAGING ENVIRONMENT
+# ============================================================================
+[env.staging]
+name = "bible-image-generator-staging"
+vars = { ENVIRONMENT = "staging", ALLOWED_ORIGINS = "https://staging.yourdomain.com", RATE_LIMIT_ANONYMOUS = "10", RATE_LIMIT_AUTHENTICATED = "30", IMAGE_RETENTION_DAYS = "60", BACKUP_RETENTION_DAYS = "30", ENABLE_CONTENT_MODERATION = "true" }
+
+[env.staging.ai]
+binding = "AI"
+
+[[env.staging.r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "bible-images-staging"
+preview_bucket_name = "bible-images-staging-preview"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "bible-image-db-staging"
+database_id = "placeholder-staging-db-id"
+
+[[env.staging.kv_namespaces]]
+binding = "KV_CACHE"
+id = "placeholder-staging-kv-id"
+
+[env.staging.durable_objects]
+bindings = [
+  { name = "RATE_LIMITER", class_name = "RateLimiter", script_name = "bible-image-generator-staging" }
+]
+
+[env.staging.triggers]
+crons = [
+  "0 6 * * *",   # Daily verse generation at 6 AM UTC
+  "0 0 * * *",   # Metrics aggregation at midnight UTC
+  "0 2 * * 0"    # Weekly cleanup on Sunday at 2 AM UTC
+]
+
+# ============================================================================
+# PRODUCTION ENVIRONMENT
+# ============================================================================
+[env.production]
+name = "bible-image-generator-production"
+vars = { ENVIRONMENT = "production", ALLOWED_ORIGINS = "https://yourdomain.com,https://www.yourdomain.com", RATE_LIMIT_ANONYMOUS = "5", RATE_LIMIT_AUTHENTICATED = "20", IMAGE_RETENTION_DAYS = "90", BACKUP_RETENTION_DAYS = "30", ENABLE_CONTENT_MODERATION = "true" }
+
+[env.production.ai]
+binding = "AI"
+
+[[env.production.r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "bible-images-production"
+preview_bucket_name = "bible-images-production-preview"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "bible-image-db-production"
+database_id = "placeholder-production-db-id"
+
+[[env.production.kv_namespaces]]
+binding = "KV_CACHE"
+id = "placeholder-production-kv-id"
+
+[env.production.durable_objects]
+bindings = [
+  { name = "RATE_LIMITER", class_name = "RateLimiter", script_name = "bible-image-generator-production" }
+]
+
+[env.production.triggers]
+crons = [
+  "0 6 * * *",   # Daily verse generation at 6 AM UTC
+  "0 0 * * *",   # Metrics aggregation at midnight UTC
+  "0 2 * * 0"    # Weekly cleanup on Sunday at 2 AM UTC
+]
+
+# ============================================================================
+# BUILD CONFIGURATION
+# ============================================================================
+[build]
+command = "npm run build"
+
+# ============================================================================
+# COMPATIBILITY FLAGS
+# ============================================================================
+# Add any required compatibility flags here as needed
+# compatibility_flags = []
+
+# ============================================================================
+# LIMITS (Optional - uncomment to set custom limits)
+# ============================================================================
+# [limits]
+# cpu_ms = 50  # Maximum CPU time in milliseconds (default: 50ms for free tier)

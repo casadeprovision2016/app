@@ -1,0 +1,81 @@
+# Cloudflare Pages Configuration
+# This file configures the Pages deployment for the Bible Image Generator frontend
+
+name = "bible-image-generator-frontend"
+compatibility_date = "2025-01-07"
+
+# Pages build configuration
+[build]
+command = "npm run build:frontend"
+cwd = ""
+watch_dirs = ["frontend/src", "frontend/index.html"]
+
+[build.upload]
+format = "directory"
+dir = "dist/frontend"
+
+# Environment variables for Pages
+[env.production.vars]
+VITE_API_URL = "https://bible-image-generator.your-domain.workers.dev"
+VITE_ENVIRONMENT = "production"
+
+[env.preview.vars]
+VITE_API_URL = "https://bible-image-generator-preview.your-domain.workers.dev"
+VITE_ENVIRONMENT = "preview"
+
+# Pages Functions configuration (optional - for API integration if needed)
+# Pages Functions are located in the functions/ directory
+[functions]
+# Enable compatibility with Workers
+compatibility_date = "2025-01-07"
+compatibility_flags = []
+
+# Edge caching configuration
+# Cache static assets at the edge for optimal performance
+[[headers]]
+for = "/*"
+[headers.values]
+X-Content-Type-Options = "nosniff"
+X-Frame-Options = "DENY"
+X-XSS-Protection = "1; mode=block"
+Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+for = "/assets/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/*.js"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/*.css"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/*.woff2"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/index.html"
+[headers.values]
+Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+for = "/*.png"
+[headers.values]
+Cache-Control = "public, max-age=86400"
+
+[[headers]]
+for = "/*.jpg"
+[headers.values]
+Cache-Control = "public, max-age=86400"
+
+[[headers]]
+for = "/*.svg"
+[headers.values]
+Cache-Control = "public, max-age=86400"
