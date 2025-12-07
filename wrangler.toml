@@ -25,13 +25,13 @@ preview_bucket_name = "bible-images-preview"
 [[d1_databases]]
 binding = "DB"
 database_name = "bible-image-db-dev"
-database_id = "placeholder-will-be-created-on-first-deploy"
+database_id = "f761fe84-e58f-40d7-bfdf-7eaa55e9451b"
 preview_database_id = "f761fe84-e58f-40d7-bfdf-7eaa55e9451b"
 
 # Workers KV namespace for caching
 [[kv_namespaces]]
 binding = "KV_CACHE"
-id = "placeholder-will-be-created-on-first-deploy"
+id = "989d6e064f0748edb674248541139096"
 preview_id = "a0a7dcb43210420eb0ccfd86858536c3"
 
 # Durable Objects for rate limiting
@@ -42,7 +42,7 @@ bindings = [
 
 [[migrations]]
 tag = "v1"
-new_classes = ["RateLimiter"]
+new_sqlite_classes = ["RateLimiter"]
 
 # Environment variables (development defaults)
 [vars]
@@ -60,7 +60,7 @@ ENABLE_CONTENT_MODERATION = "false"
 crons = [
   "0 6 * * *",   # Daily verse generation at 6 AM UTC
   "0 0 * * *",   # Metrics aggregation at midnight UTC
-  "0 2 * * 0"    # Weekly cleanup on Sunday at 2 AM UTC
+  "0 2 * * SUN"    # Weekly cleanup on Sunday at 2 AM UTC
 ]
 
 # Secrets configuration (set via: wrangler secret put <KEY>)
@@ -102,7 +102,7 @@ bindings = [
 crons = [
   "0 6 * * *",   # Daily verse generation at 6 AM UTC
   "0 0 * * *",   # Metrics aggregation at midnight UTC
-  "0 2 * * 0"    # Weekly cleanup on Sunday at 2 AM UTC
+  "0 2 * * SUN"    # Weekly cleanup on Sunday at 2 AM UTC
 ]
 
 # ============================================================================
@@ -138,7 +138,7 @@ bindings = [
 crons = [
   "0 6 * * *",   # Daily verse generation at 6 AM UTC
   "0 0 * * *",   # Metrics aggregation at midnight UTC
-  "0 2 * * 0"    # Weekly cleanup on Sunday at 2 AM UTC
+  "0 2 * * SUN"    # Weekly cleanup on Sunday at 2 AM UTC
 ]
 
 # ============================================================================
